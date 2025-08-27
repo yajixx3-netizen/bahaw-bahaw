@@ -1,1 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bahaw Bahaw Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 400px;
+      margin: auto;
+      background: #f9f9f9;
+    }
+    input, button {
+      padding: 8px;
+      margin: 6px 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    #playersList {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    #message {
+      margin-top: 15px;
+      font-size: 1.1em;
+      min-height: 40px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Bahaw Bahaw Game</h2>
+
+  <label>Enter player name:</label>
+  <input type="text" id="playerName" placeholder="Player name" />
+  <button id="addPlayerBtn">Add Player</button>
+
+  <div id="playersList">Players: (none)</div>
+
+  <button id="startGameBtn" disabled>Start Game</button>
+
+  <div id="gameArea" style="display:none; margin-top:20px;">
+    <p id="catcherInfo"></p>
+    <button id="catchBtn">Catch Someone!</button>
+    <div id="guessArea" style="display:none; margin-top:10px;">
+      <label>Guess who was caught:</label>
+      <input type="text" id="guessInput" placeholder="Enter player name" />
+      <button id="guessBtn">Submit Guess</button>
+    </div>
+  </div>
+
+  <div id="message"></div>
+
+  <script>
+    const players = [];
+    let catcher = '';
+    let caughtPlayer = '';
+
+    const playerNameInput = document.getElementById('playerName');
+    const addPlayerBtn = document.getElementById('addPlayerBtn');
+    const playersList = document.getElementById('playersList');
+    const startGameBtn = document.getElementById('startGameBtn');
+    const gameArea = document.getElementById('gameArea');
+    const catcherInfo = document.getElementById('catcherInfo');
+    const catchBtn = document.getElementById('catchBtn');
+    const guessArea = document.getElementById('guessArea');
+    const guessInput = document.getElementById('guessInput');
+    const guessBtn = document.getElementById('guessBtn');
+    const message = document.getElementById('message');
+
+    addPlayerBtn.onclick = () => {
+      const name = playerNameInput.value.trim();
+      if (!name) {
+        alert('Please enter a player name');
+        return;
+      }
+      if (players.includes(name)) {
+        alert('Player already added');
+        playerNameInput.value = '';
+        return;
+      }
+      players.push(name);
+      playerNameInput.value = '';
+      updatePlayersList();
+
+      if (players.length >= 3) {
+        startGameBtn.disabled = false;
+      }
+    };
+
+    function updatePlayersList() {
+      playersList.textContent = 'Players: ' + (players.length ? players.join(', ') : '(none)');
+    }
+
+    startGameBtn.onclick = () => {
+      // Pick catcher randomly
+      catcher = players[Math.floor(Math.random() * players.length)];
+      catcherInfo.textContent = `${catcher} is the catcher! They will close their eyes and say "Bahaw Bahaw!"`;
+      message.textContent = 'Other players, hide!';
+      gameArea.style.display = 'block';
+      startGameBtn.disabled = true;
+      addPlayerBtn.disabled = true;
+      playerNameInput.disabled = true;
+    };
+
+    catchBtn.onclick = () => {
+      // Choose someone to catch (not catcher)
+      const others = players.filter(p => p !== catcher);
+      caughtPlayer = others[Math.floor(Math.random() * others.length)];
+      message.textContent = `${catcher} caught someone!`;
+      catchBtn.style.display = 'none';
+      guessArea.style.display = 'block';
+    };
+
+    guessBtn.onclick = () => {
+      const guess = guessInput.value.trim();
+      if (!guess) {
+        alert('Please enter a guess');
+        return;
+      }
+      if (guess.toLowerCase() === caughtPlayer.toLowerCase()) {
+        message.textContent = `Correct! You caught ${caughtPlayer}. You win! 🎉`;
+      } else {
+        message.textContent = `Wrong! You caught ${caughtPlayer} but guessed ${guess}. Try again next time.`;
+      }
+      guessArea.style.display = 'none';
+      guessInput.value = '';
+
+      // Reset game for new round after short delay
+      setTimeout(() => {
+        resetGame();
+      }, 5000);
+    };
+
+    function resetGame() {
+      message.textContent = '';
+      catcherInfo.textContent = '';
+      catchBtn.style.display = 'inline-block';
+      gameArea.style.display = 'none';
+      startGameBtn.disabled = false;
+      addPlayerBtn.disabled = false;
+      playerNameInput.disabled = false;
+      players.length = 0;
+      updatePlayersList();
+    }
+  </script>
+
+</body>
+</html>
 
